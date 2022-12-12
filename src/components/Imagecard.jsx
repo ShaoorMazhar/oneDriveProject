@@ -1,11 +1,22 @@
-import React from 'react';
-
-import { Navigate, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 export default function Imagecard() {
+  const [imageLink, setImageLink] = useState('');
+
+  const { id } = useParams();
   const navigate = useNavigate();
   const handleReturn = () => {
     navigate('/');
   };
+  const rootData = async () => {
+    const result = await getSingleItem(id);
+
+    setImageLink(result?.data['@microsoft.graph.downloadUrl']);
+  };
+  useEffect(() => {
+    rootData();
+  }, []);
   return (
     <div className='container text-center'>
       <h3 style={{ marginTop: '2rem' }}>This is Image</h3>
@@ -23,7 +34,7 @@ export default function Imagecard() {
         >
           <img
             style={{ objectFit: 'contain' }}
-            src='https://mymodernmet.com/wp/wp-content/uploads/2021/04/Nature-Sounds-For-Well-Being-03.jpg'
+            src={imageLink}
             alt='dummyImage'
           />
         </div>

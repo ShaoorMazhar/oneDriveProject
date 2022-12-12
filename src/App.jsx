@@ -19,17 +19,31 @@ import './styles/App.css';
  */
 const ProfileContent = () => {
   const [videoid, setVideoId] = useState('');
+  const [imageid, setImageId] = useState('');
+  const [pdfid, setpdfid] = useState('');
   const rootData = async () => {
     const result = await getRootData();
-    const newData = result?.data?.value?.map((item) => {
+    let pdfArray = [];
+    let imageArray = [];
+    let videoArray = [];
+
+    result?.data?.value?.map((item) => {
       if (item?.file?.mimeType === 'video/mp4') {
-        return item?.id;
-      } else {
-        return 0;
-      }
+        videoArray.push(item?.id);
+      } else if (
+        item?.file?.mimeType === 'image/png' ||
+        item?.file?.mimeType === 'image/jpeg' ||
+        item?.file?.mimeType === 'image/jpg'
+      ) {
+        imageArray.push(item?.id);
+      } else if (item?.file?.mimeType === 'application/pdf') {
+        pdfArray.push(item?.id);
+      } else return 0;
     });
 
-    setVideoId(newData[2]);
+    setVideoId(videoArray[2]);
+    setImageId(imageArray[2]);
+    setpdfid(pdfArray[2]);
   };
 
   useEffect(() => {
@@ -48,33 +62,12 @@ const ProfileContent = () => {
   }, []);
   const { instance, accounts } = useMsal();
   const [graphData, setGraphData] = useState(null);
-  console.log(accounts, 'accounts');
-  // function RequestProfileData() {
-  //   // Silently acquires an access token which is then attached to a request for MS Graph data
-  //   instance
-  //     .acquireTokenSilent({
-  //       ...loginRequest,
-  //       account: accounts[0],
-  //     })
-  //     .then((response) => {
-  //       callMsGraph(response.accessToken).then((response) =>
-  //         setGraphData(response)
-  //       );
-  //     });
-  // }
 
   return (
     <>
       <h5 className='card-title'>Welcome {accounts[0]?.name}</h5>
-      {graphData ? (
-        <ProfileData graphData={graphData} />
-      ) : (
-        ''
-        // <Button variant='secondary' onClick={RequestProfileData}>
-        //   Request Profile Information
-        // </Button>
-      )}
-      <LinkGroup videoid={videoid} />
+      {graphData ? <ProfileData graphData={graphData} /> : ''}
+      <LinkGroup videoid={videoid} imageid={imageid} pdfid={pdfid} />
     </>
   );
 };
